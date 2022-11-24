@@ -24,7 +24,7 @@ export const placeOrder = async (req, res) => {
 
     const userId = getIdFromCookie(req.headers.cookie);
     // console.log(userId, 'Some adress', req.body.total);
-    const orderId = await insertOrder([userId, 'Some adress', req.body.total]);
+    const orderId = await insertOrder([userId, null, req.body.total]);
 
     req.body.products.forEach((el) => {
       productValues.push([el.id, orderId]);
@@ -37,7 +37,7 @@ export const placeOrder = async (req, res) => {
         console.log('err', err);
         return res.status(500).json('Error');
       } else if (data) {
-        return res.status(200).json({ id: data.insertId });
+        return res.status(200).json({ id: orderId });
       }
     });
   }
@@ -79,9 +79,10 @@ export const acceptPayment = async (req, res) => {
   if (req.headers.cookie === undefined) {
     return res.status(409).json('no data');
   }
-  const q = 'UPDATE `user_order` SET `status`= "Paid", `step`= 1 WHERE id = ?';
+  const q =
+    'UPDATE `user_order` SET `status`= "Paid", `step`= 1, delivery_adress=? WHERE id = ?';
   const orderId = req.params.id;
-  db.query(q, [orderId], (err, data) => {
+  db.query(q, [JSON.stringify(req.body), orderId], (err, data) => {
     if (data) {
       return res.status(200).json('Order status switched');
     } else if (err) {

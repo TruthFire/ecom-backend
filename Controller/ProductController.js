@@ -24,7 +24,7 @@ export const getProducts = async (req, res) => {
   } else {
     q = 'SELECT * FROM `products` WHERE 1';
   }
-  if (qNew) q += ' ORDER BY createdAt DESC';
+  if (qNew) q += ' ORDER BY createdAt DESC LIMIT 10';
 
   db.query(q, [qCategory], (err, data) => {
     console.log(q);
@@ -39,7 +39,6 @@ export const getProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   const q = 'SELECT * from `products` WHERE `id` = ?';
-  console.log(req.params);
   db.query(q, req.params.id, (err, data) => {
     if (err) {
       console.log(err);
@@ -48,27 +47,3 @@ export const getProduct = async (req, res) => {
     }
   });
 };
-
-// router.get('/', async (req, res) => {
-//   const qNew = req.query.new;
-//   const qCategory = req.query.category;
-//   try {
-//     let products;
-
-//     if (qNew) {
-//       products = await Product.find().sort({ createdAt: -1 }).limit(1);
-//     } else if (qCategory) {
-//       products = await Product.find({
-//         categories: {
-//           $in: [qCategory],
-//         },
-//       });
-//     } else {
-//       products = await Product.find();
-//     }
-
-//     res.status(200).json(products);
-//   } catch (err) {
-//     res.status(500).json(err);
-//   }
-// });

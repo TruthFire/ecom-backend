@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { db } from './../connect.js';
 import { verifyAuth, getTokenFromCookie } from './ControllerUtils.js';
 
-
 const signToken = (id) => {
   return jwt.sign(
     {
@@ -40,7 +39,6 @@ export const GetUserInfoById = async (id, callback) => {
 export const CreateUser = async (req, res, next) => {
   try {
     const q = 'SELECT * FROM users WHERE username = ? OR email = ?';
-    console.log(req.body);
     db.query(q, [req.body.username, req.body.email], async (err, data) => {
       if (err) return res.status(500).json(err);
       if (data.length) return res.status(409).json('User already exists!');
@@ -114,7 +112,6 @@ export const AuthUser = async (req, res) => {
           } else if (rez) {
             const token = signToken(data[0].id);
             const { password, ...userInfo } = data[0];
-            console.log('u', userInfo);
             return res
               .cookie('user_token', token, {
                 httpOnly: true,
@@ -155,7 +152,7 @@ export const getCurrentUserInfo = async (req, res) => {
     db.query(q, [req.query.id], (err, data) => {
       if (err) {
         console.log(err);
-        return 'error';
+        return res.status(500).json('error');
       } else {
         return res.status(200).json(data[0]);
       }
@@ -243,8 +240,7 @@ const comparePasswords = (plainPassword, hashedPassword) => {
 };
 
 export const selectUserData = (uId) => {
-  const q =
-    'SELECT `firstname`, `lastname`, `avatar` from `users` where `id` = ?';
+  const q = 'SELECT `firstname`, `lastname` from `users` where `id` = ?';
 
   db.query(q, [uId], (err, data) => {
     if (err) {
