@@ -1,5 +1,6 @@
 //zv6PxAKEnADlo2pb
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 import Express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -13,7 +14,7 @@ import HandleValidationErrors from './Utils/HandleValidationErrors.js';
 
 const app = Express();
 
-export const server = app.listen(8000, () => {
+export const server = app.listen(8080, () => {
   console.log('Server started..');
 });
 
