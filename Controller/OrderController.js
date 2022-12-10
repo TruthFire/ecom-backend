@@ -16,14 +16,12 @@ export const getProductsByCategory = async (req, res) => {
 };
 
 export const placeOrder = async (req, res) => {
-  //console.log(req.body);
   if (req.headers.cookie === undefined) {
     return res.status(409).json('no data');
   } else {
     const productValues = [];
 
     const userId = getIdFromCookie(req.headers.cookie);
-    // console.log(userId, 'Some adress', req.body.total);
     const orderId = await insertOrder([userId, null, req.body.total]);
 
     req.body.products.forEach((el) => {
@@ -58,26 +56,69 @@ const insertOrder = (values) => {
   });
 };
 
+// try {
+//     if (!('cookie' in req.headers)) {
+//       return res.status(409).json('no data');
+//     }
+
+//     const limit = req.query.limit || 10;
+//     const offset = req.query.offset || 0;
+//     const q = `
+//       SELECT id, delivery_adress, status, order_price,
+//              DATE_FORMAT(placed_at, '%Y-%m-%d %H:%i') AS placed_at,
+//              DATE_FORMAT(closed_at, '%Y-%m-%d') AS closed_at
+//       FROM user_order
+//       WHERE user_id = ?
+//       ORDER BY placed_at DESC
+//       LIMIT ? OFFSET ?
+//     `;
+//     const userId = getIdFromCookie(req.headers.cookie);
+//     const data = db.query(q, [userId, limit, offset]);
+//     return res.status(200).json(data);
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(500).json(err.message);
+//   }
+// };
+
 export const GetMyOrders = (req, res) => {
-  if (req.headers.cookie === undefined) {
-    return res.status(409).json('no data');
-  }
-  const q =
-    "SELECT `id`, `delivery_adress`, `status`, `order_price`, date_format(placed_at, '%Y-%m-%d %H:%i') AS placed_at, date_format(closed_at, '%Y-%m-%d') AS closed_at FROM `user_order` WHERE `user_id` = ? ORDER BY placed_at DESC";
-  const userId = getIdFromCookie(req.headers.cookie);
-  db.query(q, [userId], (err, data) => {
-    if (data) {
-      return res.status(200).json(data);
-    } else if (err) {
-      console.log(err);
-      return res.status(500).json('Error');
+  try {
+    if (!('cookie' in req.headers)) {
+      return res.status(401).json({
+        error: 'You are not authorized to view this page. Please Log in.',
+      });
     }
-  });
+
+    const limit = req.query.limit || 25;
+    const offset = req.query.offset || 0;
+    const q = `
+      SELECT id, delivery_adress, status, order_price,
+             DATE_FORMAT(placed_at, '%Y-%m-%d %H:%i') AS placed_at,
+             DATE_FORMAT(closed_at, '%Y-%m-%d') AS closed_at
+      FROM user_order
+      WHERE user_id = ?
+      ORDER BY placed_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    const userId = getIdFromCookie(req.headers.cookie);
+    db.query(q, [userId, limit, offset], (err, data) => {
+      if (data) {
+        return res.status(200).json(data);
+      } else if (err) {
+        console.log(err);
+        throw err;
+      }
+    });
+  } catch (err) {
+    return res.status(500).json(err.message);
+  }
 };
 
 export const acceptPayment = async (req, res) => {
-  if (req.headers.cookie === undefined) {
-    return res.status(409).json('no data');
+  if (!('cookie' in req.headers)) {
+    return res.status(401).json({
+      error: 'You are not authorized to view this page. Please Log in.',
+    });
   }
   const q =
     'UPDATE `user_order` SET `status`= "Paid", `step`= 1, delivery_adress=? WHERE id = ?';
@@ -98,7 +139,8 @@ export const getOrderDetails = async (req, res) => {
   }
   var queries = [
     'SELECT `delivery_adress`, `status`, `order_price`, `placed_at`, `closed_at`,step FROM `user_order` WHERE id = ?',
-    'SELECT products.id, products.name, products.price, products.ImageUrl FROM `order_item` INNER JOIN products ON products.id = order_item.product_id WHERE order_id = ?;',
+    'SELECT products.id, products.name, products.price, products.ImageUrl FROM `order_item`' +
+      ' INNER JOIN products ON products.id = order_item.product_id WHERE order_id = ?;',
   ];
 
   db.query(queries.join(';'), [req.params.id, req.params.id], (err, data) => {

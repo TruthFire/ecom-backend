@@ -31,7 +31,6 @@ export const getTokenValues = (token) => {
 
 export const verifyAuth = (cookies, id) => {
   const tkn = getTokenFromCookie(cookies);
-  console.log(getTokenValues(tkn), id);
   return parseInt(getTokenValues(tkn)._id) === parseInt(id);
 };
 

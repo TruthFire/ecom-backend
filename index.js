@@ -13,7 +13,7 @@ import HandleValidationErrors from './Utils/HandleValidationErrors.js';
 
 const app = Express();
 
-app.listen(8000, () => {
+export const server = app.listen(8000, () => {
   console.log('Server started..');
 });
 
@@ -49,6 +49,8 @@ app.get('/auth/me', UserController.getCurrentUserInfo);
 
 app.get('/products', ProductController.getProducts);
 
+app.get('/products/categories', ProductController.getCategories);
+
 app.get('/products/:id', ProductController.getProduct);
 
 app.put('/user/:id', UserController.updateMyProfile);
@@ -60,5 +62,3 @@ app.get('/orders', OrderController.GetMyOrders);
 app.post('/order/:id/process', OrderController.acceptPayment);
 
 app.get('/order/:id', OrderController.getOrderDetails);
-
-

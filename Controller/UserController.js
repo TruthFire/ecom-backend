@@ -15,6 +15,7 @@ const signToken = (id) => {
   );
 };
 
+
 const isEmail = (email) => {
   return String(email)
     .toLowerCase()
@@ -100,7 +101,6 @@ export const AuthUser = async (req, res) => {
     db.query(q, [req.body.userLogin, req.body.userLogin], async (err, data) => {
       if (err) return res.status(500).json(err);
       if (data.length === 0) return res.status(404).json('User not found!');
-      //console.log('d', data[0]);
 
       const checkPassword = await bcrypt.compare(
         req.body.password,
@@ -163,9 +163,8 @@ export const getCurrentUserInfo = async (req, res) => {
 };
 
 export const updateMyProfile = async (req, res) => {
-  console.log(req.body);
   if (req.headers.cookie === undefined || req.params.id === undefined) {
-    res.status(409).json('no data');
+    return res.status(409).json({ error: 'no data' });
   }
 
   let hashedPwd = await selectHashedPasswordById(req.params.id);
@@ -173,42 +172,35 @@ export const updateMyProfile = async (req, res) => {
     req.body.password,
     hashedPwd
   );
-  if (arePasswordsMatching) {
-    let newPassword =
-      req.body.new_password !== '' && req.body.new_password !== undefined
-        ? await bcrypt.hash(req.body.new_password, 10)
-        : hashedPwd;
-
-    const q =
-      'UPDATE `users` SET `password`=?,`email`=?,`firstname`=?,`lastname`=? WHERE id = ?';
-
-    console.log('np', hashedPwd);
-    const values = [
-      newPassword,
-      req.body.email,
-      req.body.firstname,
-      req.body.lastname,
-      req.params.id,
-    ];
-
-    db.query(q, values, (err, result) => {
-      if (result) {
-        return res.status(200).json({
-          id: req.params.id,
-          email: req.body.email,
-          firstname: req.body.firstname,
-          lastname: req.body.lastname,
-        });
-      } else if (err) {
-        console.log(err);
-        return res
-          .status(500)
-          .json({ error: 'Oops.. something went wrong :(' });
-      }
-    });
-  } else {
-    console.log('returning');
+  if (!arePasswordsMatching) {
     return res.status(401).json({ error: 'Current password does not match' });
+  }
+
+  // Extract values from request body
+  const { new_password: newPassword, email, firstname, lastname } = req.body;
+
+  // Check if new password is provided before calling bcrypt.hash()
+  let password = hashedPwd;
+  if (newPassword && newPassword !== '') {
+    password = await bcrypt.hash(newPassword, 10);
+  }
+
+  // Use template literals and object destructuring to create the query string and values array
+  const q = `UPDATE \`users\` SET \`password\`=?,\`email\`=?,\`firstname\`=?,\`lastname\`=? WHERE id = ?`;
+  const values = [password, email, firstname, lastname, req.params.id];
+
+  try {
+    const result = await db.query(q, values);
+
+    return res.status(200).json({
+      id: req.params.id,
+      email,
+      firstname,
+      lastname,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'Oops.. something went wrong :(' });
   }
 };
 
@@ -232,21 +224,18 @@ const comparePasswords = (plainPassword, hashedPassword) => {
       if (err) {
         reject(err);
       } else {
-        console.log(res);
         resolve(res);
       }
     });
   });
 };
 
-export const selectUserData = (uId) => {
+export const selectUserData = async (uId) => {
   const q = 'SELECT `firstname`, `lastname` from `users` where `id` = ?';
-
-  db.query(q, [uId], (err, data) => {
-    if (err) {
-      return 'error';
-    } else {
-      return data[0];
-    }
-  });
+  try {
+    const data = await db.query(q, [uId]);
+    return data[0];
+  } catch (err) {
+    return 'error';
+  }
 };

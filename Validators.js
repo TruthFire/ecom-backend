@@ -11,6 +11,6 @@ export const registerValidation = [
 ];
 
 export const loginValidation = [
-  body('userLogin', 'Invalid email').isString({ min: 5 }),
+  body('userLogin', 'Invalid username or email').isString({ min: 5 }),
   body('password', 'Minimal password length is 8 symbols').isLength({ min: 8 }),
 ];
