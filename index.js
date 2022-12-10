@@ -14,7 +14,7 @@ import HandleValidationErrors from './Utils/HandleValidationErrors.js';
 
 const app = Express();
 
-export const server = app.listen(process.env.PORT, () => {
+export const server = app.listen(8080, () => {
   console.log('Server started..');
 });
 
