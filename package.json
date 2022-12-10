@@ -17,7 +17,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --exit --timeout 5000",
     "start:dev": "nodemon index.js",
     "start": "node app.js"
   },
