@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'gamerbux-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_49673A36D6AA44CA9B5A2CA4D009390F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9FE30C85FDEE40C2A80F56DD5A0214AA }}
           package: .
