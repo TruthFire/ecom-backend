@@ -1,5 +1,6 @@
 //zv6PxAKEnADlo2pb
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 import Express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';

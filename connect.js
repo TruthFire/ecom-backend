@@ -1,10 +1,11 @@
 import mysql from 'mysql';
 
 export const db = mysql.createConnection({
-  host: 'db-mysql-fra1-34081-do-user-13073081-0.b.db.ondigitalocean.com',
-  user: 'doadmin',
-  password: '',
+  host: 'gamerbux.mysql.database.azure.com',
+  user: 'gamerbux_user',
+  password: '3MmEr8rl492^',
   database: 'gamerbux',
-  port: '25060',
   multipleStatements: true,
 });
+
+//3MmEr8rl492^
