@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from './../connect.js';
-import { verifyAuth, getTokenFromCookie } from './ControllerUtils.js';
+import { verifyAuth, getUIDFromTkn } from './ControllerUtils.js';
 
 const signToken = (id) => {
   return jwt.sign(
@@ -14,7 +14,6 @@ const signToken = (id) => {
     }
   );
 };
-
 
 const isEmail = (email) => {
   return String(email)

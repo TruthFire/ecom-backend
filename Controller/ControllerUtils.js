@@ -34,6 +34,11 @@ export const verifyAuth = (cookies, id) => {
   return parseInt(getTokenValues(tkn)._id) === parseInt(id);
 };
 
+export const getUIDFromTkn = (cookies) => {
+  const tkn = getTokenFromCookie(cookies);
+  return parseInt(getTokenValues(tkn)._id);
+}
+
 export const getIdFromCookie = (cookie) => {
   return getTokenValues(getTokenFromCookie(cookie))._id;
 };
